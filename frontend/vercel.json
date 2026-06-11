@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "postgres-production-660e.up.railway.app"
+      "destination": "https://startup-production-5808.up.railway.app"
     },
     {
       "source": "/(.*)",
