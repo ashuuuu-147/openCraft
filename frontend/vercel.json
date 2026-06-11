@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://opencraft-backend.up.railway.app/api/:path*"
+      "destination": "startup-production-bf4d.up.railway.app"
     },
     {
       "source": "/(.*)",
