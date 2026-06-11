@@ -11,6 +11,15 @@ const db_1 = require("../db");
 const auth_middleware_1 = require("../middleware/auth.middleware");
 const router = (0, express_1.Router)();
 const JWT_SECRET = process.env.JWT_SECRET || 'opencraft-super-secret-jwt-key-2026';
+// Get GitHub OAuth config status
+router.get('/config', (req, res) => {
+    const clientID = process.env.GITHUB_CLIENT_ID;
+    const clientSecret = process.env.GITHUB_CLIENT_SECRET;
+    res.json({
+        githubClientId: clientID || '',
+        isGithubConfigured: !!(clientID && clientSecret)
+    });
+});
 // Register standard email/password user
 router.post('/signup', async (req, res) => {
     try {
