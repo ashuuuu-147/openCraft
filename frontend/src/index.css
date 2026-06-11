@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  
+  body {
+    background-color: #f7f7f4; /* colors.canvas */
+    color: #26251e; /* colors.ink */
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+
+  /* Custom minimal scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f7f7f4;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #e6e5e0;
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #cfcdc4;
+  }
+}
+
+@layer utilities {
+  /* Cursor's hairline-only depth style */
+  .cursor-card {
+    background-color: #ffffff; /* colors.surface-card */
+    border: 1px solid #e6e5e0; /* colors.hairline */
+    border-radius: 12px; /* rounded.lg */
+    box-shadow: none;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .cursor-card-hover:hover {
+    border-color: #cfcdc4; /* colors.hairline-strong */
+    background-color: #fafaf7; /* colors.canvas-soft */
+  }
+
+  /* Buttons matching specification */
+  .btn-cursor-primary {
+    background-color: #f54e00; /* colors.primary */
+    color: #ffffff; /* colors.on-primary */
+    border: 1px solid #f54e00;
+    border-radius: 8px; /* rounded.md */
+    padding: 10px 18px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+  
+  .btn-cursor-primary:hover {
+    background-color: #d04200; /* colors.primary-active */
+    border-color: #d04200;
+  }
+
+  .btn-cursor-secondary {
+    background-color: #ffffff; /* colors.surface-card */
+    color: #26251e; /* colors.ink */
+    border: 1px solid #cfcdc4; /* colors.hairline-strong */
+    border-radius: 8px; /* rounded.md */
+    padding: 9px 17px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .btn-cursor-secondary:hover {
+    background-color: #f7f7f4; /* colors.canvas */
+    border-color: #26251e;
+  }
+
+  .btn-cursor-download {
+    background-color: #26251e; /* colors.ink */
+    color: #f7f7f4; /* colors.canvas */
+    border: 1px solid #26251e;
+    border-radius: 8px; /* rounded.md */
+    padding: 12px 20px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s ease;
+  }
+
+  .btn-cursor-download:hover {
+    opacity: 0.9;
+  }
+
+  /* IDE Mockup Elements */
+  .ide-mockup-card {
+    background-color: #ffffff; /* colors.surface-card */
+    border: 1px solid #e6e5e0; /* colors.hairline */
+    border-radius: 12px; /* rounded.lg */
+    overflow: hidden;
+  }
+
+  .ide-pane {
+    background-color: #fafaf7; /* colors.canvas-soft */
+    border: 1px solid #efeee8; /* colors.hairline-soft */
+    border-radius: 8px; /* rounded.md */
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #5a5852; /* colors.body */
+    padding: 16px;
+  }
+
+  /* Timeline Pills */
+  .timeline-thinking {
+    background-color: #dfa88f; /* Peach */
+    color: #26251e;
+  }
+
+  .timeline-grep {
+    background-color: #9fc9a2; /* Mint */
+    color: #26251e;
+  }
+
+  .timeline-read {
+    background-color: #9fbbe0; /* Blue */
+    color: #26251e;
+  }
+
+  .timeline-edit {
+    background-color: #c0a8dd; /* Lavender */
+    color: #26251e;
+  }
+
+  .timeline-done {
+    background-color: #c08532; /* Gold */
+    color: #ffffff;
+  }
+}

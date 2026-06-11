@@ -1,0 +1,131 @@
+// backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String?  // nullable for OAuth users
+  githubId    String?  @unique
+  githubLogin String?
+  name        String?
+  role        String   @default("CODER") // CODER, MENTOR, ORG_ADMIN, PLATFORM_ADMIN
+  level       String   @default("BEGINNER") // BEGINNER, ACTIVE, VERIFIED, MENTOR_LEVEL
+  reputation  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  profile     Profile?
+  submissions Submission[]
+  badges      Badge[]
+  reviews     Review[]
+  rewards     Reward[]
+  orgs        Organization[]
+}
+
+model Profile {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  bio       String?
+  avatar    String?
+  stack     String   @default("") // comma-separated, e.g. "JavaScript,React,Node.js"
+  website   String?
+  twitter   String?
+  timezone  String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  userId      String   // Admin/creator User ID
+  name        String
+  website     String?
+  logo        String?
+  description String?
+  verified    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks Task[]
+}
+
+model Task {
+  id          String       @id @default(cuid())
+  title       String
+  description String
+  type        String       // BUG_FIX, FEATURE, DOCUMENTATION, TESTING, REFACTOR
+  difficulty  String       // STARTER, EASY, MEDIUM, HARD, ADVANCED
+  repoUrl     String
+  issueUrl    String?
+  orgId       String?
+  status      String       @default("OPEN") // OPEN, IN_PROGRESS, UNDER_REVIEW, COMPLETED, EXPIRED
+  reward      Int          @default(0)    // points
+  cashReward  Float        @default(0.0)  // USD
+  tags        String       @default("")   // comma-separated, e.g. "javascript,docs"
+  deadline    DateTime?
+  createdAt   DateTime     @default(now())
+
+  org         Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  submissions Submission[]
+}
+
+model Submission {
+  id          String   @id @default(cuid())
+  taskId      String
+  coderId     String
+  prUrl       String
+  description String
+  status      String   @default("PENDING") // PENDING, IN_REVIEW, APPROVED, REJECTED, CHANGES_REQUESTED
+  mentorId    String?  // assigned mentor
+  submittedAt DateTime @default(now())
+  claimedAt   DateTime?
+  claimExpiry DateTime?
+
+  task    Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  coder   User     @relation(fields: [coderId], references: [id], onDelete: Cascade)
+  reviews Review[]
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  submissionId String
+  mentorId     String
+  action       String   // APPROVED, REJECTED, CHANGES_REQUESTED
+  comment      String?
+  score        Int?     // 1-5
+  reviewedAt   DateTime @default(now())
+
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  mentor     User       @relation(fields: [mentorId], references: [id], onDelete: Cascade)
+}
+
+model Badge {
+  id        String   @id @default(cuid())
+  coderId   String
+  type      String   // FIRST_CONTRIBUTION, STREAK_7, STREAK_30, LANGUAGE_EXPERT, MENTOR_APPROVED, TOP_CONTRIBUTOR, COMMUNITY_STAR
+  earnedAt  DateTime @default(now())
+
+  user User @relation(fields: [coderId], references: [id], onDelete: Cascade)
+}
+
+model Reward {
+  id        String   @id @default(cuid())
+  userId    String
+  taskId    String
+  points    Int      @default(0)
+  cash      Float    @default(0.0)
+  status    String   @default("PENDING") // PENDING, PROCESSING, PAID, FAILED
+  paidAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <!-- Left Bracket < -->
+  <path d="M 30,30 L 10,50 L 30,70" stroke="#F0F4FF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  
+  <!-- Center 3D Isometric Cube -->
+  <g transform="translate(50, 50)">
+    <!-- Top Face -->
+    <path d="M 0,-18 L 16,-9 L 0,0 L -16,-9 Z" fill="#00D4FF" opacity="0.9" stroke="#00D4FF" stroke-width="1.5" stroke-linejoin="round" />
+    <!-- Left Face -->
+    <path d="M -16,-9 L 0,0 L 0,18 L -16,9 Z" fill="#0090CC" stroke="#0090CC" stroke-width="1.5" stroke-linejoin="round" />
+    <!-- Right Face -->
+    <path d="M 0,0 L 16,-9 L 16,9 L 0,18 Z" fill="#005580" stroke="#005580" stroke-width="1.5" stroke-linejoin="round" />
+  </g>
+  
+  <!-- Right Bracket > -->
+  <path d="M 70,30 L 90,50 L 70,70" stroke="#F0F4FF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+</svg>
