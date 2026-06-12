@@ -8,6 +8,11 @@ const client_1 = require("@prisma/client");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const prisma = new client_1.PrismaClient();
 async function main() {
+    const userCount = await prisma.user.count();
+    if (userCount > 0) {
+        console.log('Database already has users. Skipping seeding.');
+        return;
+    }
     console.log('Clearing database...');
     // Delete in order to avoid foreign key constraints
     await prisma.reward.deleteMany({});

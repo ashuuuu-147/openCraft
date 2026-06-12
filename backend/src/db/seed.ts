@@ -5,6 +5,12 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
+  const userCount = await prisma.user.count();
+  if (userCount > 0) {
+    console.log('Database already has users. Skipping seeding.');
+    return;
+  }
+
   console.log('Clearing database...');
   // Delete in order to avoid foreign key constraints
   await prisma.reward.deleteMany({});
