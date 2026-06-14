@@ -26,6 +26,9 @@ const getTransporter = async (): Promise<nodemailer.Transporter> => {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      connectionTimeout: 5000, // 5s timeout
+      greetingTimeout: 5000,   // 5s timeout
+      socketTimeout: 5000,     // 5s timeout
     });
   }
 
