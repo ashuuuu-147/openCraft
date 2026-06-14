@@ -248,3 +248,26 @@ export const getEmailConfigStatus = () => {
     from: process.env.SMTP_FROM || 'OpenCraft <noreply@opencraft.dev>'
   };
 };
+
+// Send a diagnostic test email and return the result
+export const testSendEmail = async (to: string) => {
+  const transporter = await getTransporter();
+  const fromAddress = process.env.SMTP_FROM || 'OpenCraft <noreply@opencraft.dev>';
+  
+  const info = await transporter.sendMail({
+    from: fromAddress,
+    to,
+    subject: 'OpenCraft SMTP Diagnostic Test',
+    text: 'If you receive this email, your SMTP email configuration is working perfectly!',
+    html: '<h3>SMTP Diagnostic Test</h3><p>If you receive this email, your SMTP email configuration is working perfectly!</p>',
+  });
+  
+  return {
+    messageId: info.messageId,
+    envelope: info.envelope,
+    accepted: info.accepted,
+    rejected: info.rejected,
+    response: info.response,
+    previewUrl: !isSmtpConfigured() ? nodemailer.getTestMessageUrl(info) : null
+  };
+};

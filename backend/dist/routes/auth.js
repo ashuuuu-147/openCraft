@@ -21,6 +21,27 @@ router.get('/config', (req, res) => {
         isGithubConfigured: !!(clientID && clientSecret)
     });
 });
+// Diagnostic endpoint to test SMTP email sending
+router.get('/test-email', async (req, res) => {
+    try {
+        const { to } = req.query;
+        if (!to) {
+            return res.status(400).json({ error: 'Query parameter "to" is required (e.g. ?to=your-email@example.com)' });
+        }
+        const result = await (0, email_1.testSendEmail)(String(to));
+        res.json({ status: 'sent', result });
+    }
+    catch (error) {
+        console.error('SMTP Diagnostic Failure:', error);
+        res.status(500).json({
+            status: 'error',
+            message: error.message,
+            code: error.code,
+            command: error.command,
+            stack: error.stack
+        });
+    }
+});
 // Register standard email/password user
 router.post('/signup', async (req, res) => {
     try {

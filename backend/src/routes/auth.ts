@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../db';
 import { authenticateJWT, AuthRequest } from '../middleware/auth.middleware';
-import { sendWelcomeEmail, sendLoginAlert } from '../utils/email';
+import { sendWelcomeEmail, sendLoginAlert, testSendEmail } from '../utils/email';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'opencraft-super-secret-jwt-key-2026';
@@ -17,6 +17,27 @@ router.get('/config', (req, res) => {
     githubClientId: clientID || '',
     isGithubConfigured: !!(clientID && clientSecret)
   });
+});
+
+// Diagnostic endpoint to test SMTP email sending
+router.get('/test-email', async (req, res) => {
+  try {
+    const { to } = req.query;
+    if (!to) {
+      return res.status(400).json({ error: 'Query parameter "to" is required (e.g. ?to=your-email@example.com)' });
+    }
+    const result = await testSendEmail(String(to));
+    res.json({ status: 'sent', result });
+  } catch (error: any) {
+    console.error('SMTP Diagnostic Failure:', error);
+    res.status(500).json({
+      status: 'error',
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      stack: error.stack
+    });
+  }
 });
 
 // Register standard email/password user
