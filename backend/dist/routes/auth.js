@@ -9,6 +9,7 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const db_1 = require("../db");
 const auth_middleware_1 = require("../middleware/auth.middleware");
+const email_1 = require("../utils/email");
 const router = (0, express_1.Router)();
 const JWT_SECRET = process.env.JWT_SECRET || 'opencraft-super-secret-jwt-key-2026';
 // Get GitHub OAuth config status
@@ -54,6 +55,8 @@ router.post('/signup', async (req, res) => {
             }
         });
         const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role, level: user.level }, JWT_SECRET, { expiresIn: '24h' });
+        // Trigger Welcome Email (non-blocking)
+        (0, email_1.sendWelcomeEmail)(user.email, user.name || '', user.role);
         res.status(201).json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role, level: user.level, avatar: user.profile?.avatar } });
     }
     catch (error) {
@@ -79,6 +82,8 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ error: 'Invalid email or password' });
         }
         const token = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role, level: user.level }, JWT_SECRET, { expiresIn: '24h' });
+        // Trigger Login Security Alert Email (non-blocking)
+        (0, email_1.sendLoginAlert)(user.email, user.name || '');
         res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role, level: user.level, avatar: user.profile?.avatar } });
     }
     catch (error) {

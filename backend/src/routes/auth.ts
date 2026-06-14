@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../db';
 import { authenticateJWT, AuthRequest } from '../middleware/auth.middleware';
+import { sendWelcomeEmail, sendLoginAlert } from '../utils/email';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'opencraft-super-secret-jwt-key-2026';
@@ -62,6 +63,9 @@ router.post('/signup', async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    // Trigger Welcome Email (non-blocking)
+    sendWelcomeEmail(user.email, user.name || '', user.role);
+
     res.status(201).json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role, level: user.level, avatar: user.profile?.avatar } });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -96,6 +100,9 @@ router.post('/login', async (req, res) => {
       JWT_SECRET,
       { expiresIn: '24h' }
     );
+
+    // Trigger Login Security Alert Email (non-blocking)
+    sendLoginAlert(user.email, user.name || '');
 
     res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role, level: user.level, avatar: user.profile?.avatar } });
   } catch (error: any) {
