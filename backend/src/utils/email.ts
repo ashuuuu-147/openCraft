@@ -239,3 +239,12 @@ Host: ${process.env.FRONTEND_URL || 'https://opencrafttt.vercel.app'}</div>
     console.error('Failed to send login alert:', error);
   }
 };
+
+// Export configuration status for verification (without exposing password)
+export const getEmailConfigStatus = () => {
+  return {
+    isConfigured: isSmtpConfigured(),
+    mode: isSmtpConfigured() ? 'SMTP (Production)' : 'Ethereal Sandbox (Development)',
+    from: process.env.SMTP_FROM || 'OpenCraft <noreply@opencraft.dev>'
+  };
+};

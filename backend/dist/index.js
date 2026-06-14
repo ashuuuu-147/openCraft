@@ -34,9 +34,14 @@ app.use('/api/submissions', submissions_1.default);
 app.use('/api/reviews', reviews_1.default);
 app.use('/api/users', users_1.default);
 app.use('/api/orgs', organizations_1.default);
+const email_1 = require("./utils/email");
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        email: (0, email_1.getEmailConfigStatus)()
+    });
 });
 // Global error handler
 app.use((err, req, res, next) => {
