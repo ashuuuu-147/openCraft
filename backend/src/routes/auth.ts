@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../db';
 import { authenticateJWT, AuthRequest } from '../middleware/auth.middleware';
 import { sendWelcomeEmail, sendLoginAlert, testSendEmail } from '../utils/email';
+import net from 'net';
+import dns from 'dns';
 
 const router = Router();
 const JWT_SECRET = process.env.JWT_SECRET || 'opencraft-super-secret-jwt-key-2026';
@@ -37,6 +39,65 @@ router.get('/test-email', async (req, res) => {
       command: error.command,
       stack: error.stack
     });
+  }
+});
+
+// Diagnostic endpoint to test raw TCP connection to SMTP host/port
+router.get('/diagnose-smtp', async (req, res) => {
+  const host = process.env.SMTP_HOST || '';
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  
+  const diagnostics: any = {
+    host,
+    port,
+    dns: null,
+    tcp: null
+  };
+  
+  if (!host) {
+    return res.status(400).json({ error: 'SMTP_HOST is not configured' });
+  }
+  
+  // 1. Test DNS Resolution
+  try {
+    const ip = await new Promise<string>((resolve, reject) => {
+      dns.lookup(host, (err, address) => {
+        if (err) reject(err);
+        else resolve(address);
+      });
+    });
+    diagnostics.dns = { status: 'success', ip };
+  } catch (err: any) {
+    diagnostics.dns = { status: 'failed', error: err.message, code: err.code };
+    return res.json({ status: 'error', stage: 'dns', diagnostics });
+  }
+  
+  // 2. Test TCP Connection
+  try {
+    const tcpResult = await new Promise<string>((resolve, reject) => {
+      const socket = new net.Socket();
+      socket.setTimeout(4000); // 4 seconds timeout
+      
+      socket.connect(port, host, () => {
+        socket.destroy();
+        resolve('connected');
+      });
+      
+      socket.on('timeout', () => {
+        socket.destroy();
+        reject(new Error('Connection timed out'));
+      });
+      
+      socket.on('error', (err) => {
+        socket.destroy();
+        reject(err);
+      });
+    });
+    diagnostics.tcp = { status: 'success', message: tcpResult };
+    res.json({ status: 'success', diagnostics });
+  } catch (err: any) {
+    diagnostics.tcp = { status: 'failed', error: err.message, code: err.code };
+    res.json({ status: 'error', stage: 'tcp', diagnostics });
   }
 });
 

@@ -10,6 +10,8 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const db_1 = require("../db");
 const auth_middleware_1 = require("../middleware/auth.middleware");
 const email_1 = require("../utils/email");
+const net_1 = __importDefault(require("net"));
+const dns_1 = __importDefault(require("dns"));
 const router = (0, express_1.Router)();
 const JWT_SECRET = process.env.JWT_SECRET || 'opencraft-super-secret-jwt-key-2026';
 // Get GitHub OAuth config status
@@ -40,6 +42,61 @@ router.get('/test-email', async (req, res) => {
             command: error.command,
             stack: error.stack
         });
+    }
+});
+// Diagnostic endpoint to test raw TCP connection to SMTP host/port
+router.get('/diagnose-smtp', async (req, res) => {
+    const host = process.env.SMTP_HOST || '';
+    const port = parseInt(process.env.SMTP_PORT || '587');
+    const diagnostics = {
+        host,
+        port,
+        dns: null,
+        tcp: null
+    };
+    if (!host) {
+        return res.status(400).json({ error: 'SMTP_HOST is not configured' });
+    }
+    // 1. Test DNS Resolution
+    try {
+        const ip = await new Promise((resolve, reject) => {
+            dns_1.default.lookup(host, (err, address) => {
+                if (err)
+                    reject(err);
+                else
+                    resolve(address);
+            });
+        });
+        diagnostics.dns = { status: 'success', ip };
+    }
+    catch (err) {
+        diagnostics.dns = { status: 'failed', error: err.message, code: err.code };
+        return res.json({ status: 'error', stage: 'dns', diagnostics });
+    }
+    // 2. Test TCP Connection
+    try {
+        const tcpResult = await new Promise((resolve, reject) => {
+            const socket = new net_1.default.Socket();
+            socket.setTimeout(4000); // 4 seconds timeout
+            socket.connect(port, host, () => {
+                socket.destroy();
+                resolve('connected');
+            });
+            socket.on('timeout', () => {
+                socket.destroy();
+                reject(new Error('Connection timed out'));
+            });
+            socket.on('error', (err) => {
+                socket.destroy();
+                reject(err);
+            });
+        });
+        diagnostics.tcp = { status: 'success', message: tcpResult };
+        res.json({ status: 'success', diagnostics });
+    }
+    catch (err) {
+        diagnostics.tcp = { status: 'failed', error: err.message, code: err.code };
+        res.json({ status: 'error', stage: 'tcp', diagnostics });
     }
 });
 // Register standard email/password user
